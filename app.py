@@ -2,14 +2,16 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 
-# ⚠️ Obligatoire : doit être le premier appel Streamlit
+# 🟢 DOIT ÊTRE ICI ABSOLUMENT, avant tout le reste
 st.set_page_config(page_title="Financial Deals Dashboard", page_icon="💰")
 
-# ----------------------- CHARGEMENT DU FICHIER -----------------------
+# Maintenant seulement tu peux faire tout le reste
+import os
+
 try:
     df = pd.read_excel("data/Data_stage.xlsm", sheet_name="F", header=1)
 except Exception as e:
-    st.stop()  # Ne pas afficher d'erreur avant set_page_config
+    st.stop() 
 
 # Nettoyage de base et vérif colonne
 if 'Trade Date' not in df.columns:
