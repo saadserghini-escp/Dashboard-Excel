@@ -3,14 +3,26 @@ import pandas as pd
 import altair as alt
 
 # ----------------------- CHARGEMENT DU FICHIER -----------------------
-df = pd.read_excel("data/Data_stage.xlsm", sheet_name="F", header=1)
+try:
+    df = pd.read_excel("data/Data_stage.xlsm", sheet_name="F", header=1)
+except Exception as e:
+    st.error(f"Erreur lors du chargement du fichier Excel : {e}")
+    st.stop()
 
-# Nettoyage de base
+# Vérifie les colonnes disponibles
+st.write("🧾 Colonnes du fichier :", df.columns.tolist())
+
+# Vérification : la colonne "Trade Date" doit exister
+if 'Trade Date' not in df.columns:
+    st.error("❌ La colonne 'Trade Date' est introuvable dans le fichier.")
+    st.stop()
+
+# Nettoyage des données
 df['Trade Date'] = pd.to_datetime(df['Trade Date'], errors='coerce')
-df['Value date'] = pd.to_datetime(df['Value date'], errors='coerce')
-df['Maturity'] = pd.to_datetime(df['Maturity'], errors='coerce')
-df['Amount'] = pd.to_numeric(df['Amount'], errors='coerce')
-df['Rate'] = pd.to_numeric(df['Rate'], errors='coerce')
+df['Value date'] = pd.to_datetime(df.get('Value date'), errors='coerce')
+df['Maturity'] = pd.to_datetime(df.get('Maturity'), errors='coerce')
+df['Amount'] = pd.to_numeric(df.get('Amount'), errors='coerce')
+df['Rate'] = pd.to_numeric(df.get('Rate'), errors='coerce')
 df.dropna(subset=['Trade Date', 'Amount', 'Rate'], inplace=True)
 
 # ----------------------- UI STREAMLIT -----------------------
@@ -43,14 +55,17 @@ col3.metric("Average Rate (%)", f"{filtered_df['Rate'].mean():.2f}")
 # ----------------------- GRAPHIQUE -----------------------
 st.subheader("📈 Rate Over Time")
 
-chart = alt.Chart(filtered_df).mark_line(point=True).encode(
-    x='Trade Date:T',
-    y='Rate:Q',
-    color='Currency:N',
-    tooltip=['Trade Date:T', 'Currency:N', 'Rate:Q']
-).interactive()
+if filtered_df.empty:
+    st.warning("Aucune donnée disponible pour les filtres sélectionnés.")
+else:
+    chart = alt.Chart(filtered_df).mark_line(point=True).encode(
+        x='Trade Date:T',
+        y='Rate:Q',
+        color='Currency:N',
+        tooltip=['Trade Date:T', 'Currency:N', 'Rate:Q']
+    ).interactive()
 
-st.altair_chart(chart, use_container_width=True)
+    st.altair_chart(chart, use_container_width=True)
 
 # ----------------------- TABLEAU -----------------------
 st.subheader("📋 Data Table")
