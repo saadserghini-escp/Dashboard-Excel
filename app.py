@@ -1,24 +1,22 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+
+# ⚠️ Obligatoire : doit être le premier appel Streamlit
 st.set_page_config(page_title="Financial Deals Dashboard", page_icon="💰")
 
 # ----------------------- CHARGEMENT DU FICHIER -----------------------
 try:
     df = pd.read_excel("data/Data_stage.xlsm", sheet_name="F", header=1)
 except Exception as e:
-    st.error(f"Erreur lors du chargement du fichier Excel : {e}")
-    st.stop()
+    st.stop()  # Ne pas afficher d'erreur avant set_page_config
 
-# Vérifie les colonnes disponibles
-st.write("🧾 Colonnes du fichier :", df.columns.tolist())
-
-# Vérification : la colonne "Trade Date" doit exister
+# Nettoyage de base et vérif colonne
 if 'Trade Date' not in df.columns:
-    st.error("❌ La colonne 'Trade Date' est introuvable dans le fichier.")
+    st.error("❌ La colonne 'Trade Date' est introuvable.")
     st.stop()
 
-# Nettoyage des données
+# Conversion des colonnes
 df['Trade Date'] = pd.to_datetime(df['Trade Date'], errors='coerce')
 df['Value date'] = pd.to_datetime(df.get('Value date'), errors='coerce')
 df['Maturity'] = pd.to_datetime(df.get('Maturity'), errors='coerce')
@@ -27,7 +25,6 @@ df['Rate'] = pd.to_numeric(df.get('Rate'), errors='coerce')
 df.dropna(subset=['Trade Date', 'Amount', 'Rate'], inplace=True)
 
 # ----------------------- UI STREAMLIT -----------------------
-st.set_page_config(page_title="Financial Deals Dashboard", page_icon="💰")
 st.title("💰 Financial Deals Dashboard")
 
 # Filtres
