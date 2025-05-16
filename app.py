@@ -3,7 +3,7 @@ import pandas as pd
 import altair as alt
 
 # ----------------------- CHARGEMENT DU FICHIER -----------------------
-df = pd.read_excel("data/Data_stage.xlsm", sheet_name="F")
+df = pd.read_excel("data/Data_stage.xlsm", sheet_name="F", header=1)
 
 # Nettoyage de base
 df['Trade Date'] = pd.to_datetime(df['Trade Date'], errors='coerce')
